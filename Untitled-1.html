@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Input Mirror</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; padding-top: 100px; background: #eef2f3; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        input { padding: 12px; width: 200px; border: 2px solid #ddd; border-radius: 6px; font-size: 16px; outline: none; }
+        input:focus { border-color: #4facfe; }
+        button { padding: 12px 24px; margin-left: 10px; background: #4facfe; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #00f2fe; }
+        #displayArea { margin-top: 30px; font-size: 24px; color: #333; min-height: 40px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Type Something Below</h2>
+    <input type="text" id="myInput" placeholder="Type 23 here...">
+    <button onclick="showResult()">Submit</button>
+    
+    <div id="displayArea">
+        </div>
+</div>
+
+<script>
+    function showResult() {
+        // 1. Target the input field and get its value
+        const userValue = document.getElementById('myInput').value;
+
+        // 2. Target the display div
+        const output = document.getElementById('displayArea');
+
+        // 3. Set the display div's text to match the input value exactly
+        output.innerText = "You entered: " + userValue;
+    }
+</script>
+
+</body>
+</html>
