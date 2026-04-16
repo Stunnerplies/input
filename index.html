@@ -2,76 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Smart Calculator</title>
+    <title>Vulnerable Calc Lab</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding-top: 100px; background: #1a1a2e; color: white; }
-        .card { background: #16213e; padding: 40px; border-radius: 20px; box-shadow: 0 15px-35px rgba(0,0,0,0.5); text-align: center; width: 350px; border: 1px solid #0f3460; }
-        
-        input { width: 100%; padding: 15px; margin-bottom: 20px; border: none; border-radius: 8px; font-size: 18px; box-sizing: border-box; background: #0f3460; color: #fff; }
-        
-        button { width: 100%; padding: 15px; background: #e94560; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #ff4d6d; transform: translateY(-2px); }
-
-        /* Loading Spinner Styling */
-        .loader {
-            display: none; /* Hidden by default */
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #e94560;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        #resultArea { margin-top: 25px; font-size: 32px; font-weight: bold; color: #4ecca3; }
+        body { font-family: monospace; background: #111; color: #0f0; display: flex; justify-content: center; padding-top: 50px; }
+        .box { border: 1px solid #0f0; padding: 20px; width: 400px; box-shadow: 0 0 15px #0f0; }
+        input { background: #000; border: 1px solid #0f0; color: #0f0; width: 100%; padding: 10px; box-sizing: border-box; margin-bottom: 10px; }
+        button { background: #0f0; color: #000; border: none; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; }
+        #status { margin-top: 15px; color: #ff0; }
+        #result { margin-top: 10px; font-size: 1.5rem; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Calculator</h2>
-    <input type="text" id="userInput" placeholder="e.g. 23 + 23">
-    <button onclick="startProcess()">Submit</button>
+<div class="box">
+    <h2>TRANSACTION PROCESSOR</h2>
+    <input type="text" id="dataInput" placeholder="Enter payload...">
+    <button onclick="sendToServer()">SUBMIT TO SERVER</button>
     
-    <div id="loader" class="loader"></div>
-    
-    <div id="resultArea"></div>
+    <div id="status"></div>
+    <div id="result"></div>
 </div>
 
 <script>
-    function startProcess() {
-        const input = document.getElementById('userInput').value;
-        const loader = document.getElementById('loader');
-        const resultArea = document.getElementById('resultArea');
+    function sendToServer() {
+        const val = document.getElementById('dataInput').value;
+        const status = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
 
-        // 1. Clear previous result and show loader
-        resultArea.innerText = "";
-        loader.style.display = "block";
+        status.innerText = "SENDING TO SERVER...";
+        resultDiv.innerText = "";
 
-        // 2. Set a timer (1500ms = 1.5 seconds)
-        setTimeout(() => {
-            // Hide loader
-            loader.style.display = "none";
-
-            try {
-                // 3. Perform calculation
-                const finalAnswer = eval(input);
-                
-                if (input.trim() === "") {
-                    resultArea.innerText = "Empty!";
-                } else {
-                    resultArea.innerText = finalAnswer;
+        // We use fetch to a fake endpoint so Burp Suite can intercept the request
+        fetch('/api/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ expression: val })
+        })
+        .then(response => response.json())
+        .catch(() => {
+            // Because there is no real backend, this will technically "fail"
+            // But we simulate the "loading" and "result" anyway for the lab
+            setTimeout(() => {
+                status.innerText = "SERVER RESPONDED:";
+                try {
+                    resultDiv.innerText = eval(val); // The "vulnerability"
+                } catch(e) {
+                    resultDiv.innerText = "EXECUTION ERROR";
                 }
-            } catch (e) {
-                resultArea.innerText = "Error";
-            }
-        }, 1500); 
+            }, 2000);
+        });
     }
 </script>
 
