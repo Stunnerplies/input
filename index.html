@@ -2,46 +2,76 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Quick Calculator</title>
+    <title>Smart Calculator</title>
     <style>
-        body { font-family: 'Arial', sans-serif; display: flex; justify-content: center; padding-top: 100px; background: #2c3e50; color: white; }
-        .calc-card { background: #34495e; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; width: 300px; }
-        input { width: 90%; padding: 12px; margin-bottom: 20px; border: none; border-radius: 5px; font-size: 18px; text-align: center; }
-        button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        button:hover { background: #2ecc71; }
-        #output { margin-top: 25px; font-size: 28px; font-weight: bold; color: #f1c40f; word-wrap: break-word; }
-        .label { font-size: 12px; color: #bdc3c7; margin-bottom: 10px; display: block; }
+        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding-top: 100px; background: #1a1a2e; color: white; }
+        .card { background: #16213e; padding: 40px; border-radius: 20px; box-shadow: 0 15px-35px rgba(0,0,0,0.5); text-align: center; width: 350px; border: 1px solid #0f3460; }
+        
+        input { width: 100%; padding: 15px; margin-bottom: 20px; border: none; border-radius: 8px; font-size: 18px; box-sizing: border-box; background: #0f3460; color: #fff; }
+        
+        button { width: 100%; padding: 15px; background: #e94560; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #ff4d6d; transform: translateY(-2px); }
+
+        /* Loading Spinner Styling */
+        .loader {
+            display: none; /* Hidden by default */
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #e94560;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #resultArea { margin-top: 25px; font-size: 32px; font-weight: bold; color: #4ecca3; }
     </style>
 </head>
 <body>
 
-<div class="calc-card">
+<div class="card">
     <h2>Calculator</h2>
-    <span class="label">Enter math (e.g., 23 + 23)</span>
-    <input type="text" id="mathInput" placeholder="0">
-    <button onclick="calculate()">Calculate Result</button>
+    <input type="text" id="userInput" placeholder="e.g. 23 + 23">
+    <button onclick="startProcess()">Submit</button>
     
-    <div id="output">0</div>
+    <div id="loader" class="loader"></div>
+    
+    <div id="resultArea"></div>
 </div>
 
 <script>
-    function calculate() {
-        const inputField = document.getElementById('mathInput');
-        const display = document.getElementById('output');
-        
-        try {
-            // eval() takes the text and runs it as a math equation
-            const result = eval(inputField.value);
-            
-            if (result === undefined || isNaN(result)) {
-                display.innerText = "Error";
-            } else {
-                display.innerText = result;
+    function startProcess() {
+        const input = document.getElementById('userInput').value;
+        const loader = document.getElementById('loader');
+        const resultArea = document.getElementById('resultArea');
+
+        // 1. Clear previous result and show loader
+        resultArea.innerText = "";
+        loader.style.display = "block";
+
+        // 2. Set a timer (1500ms = 1.5 seconds)
+        setTimeout(() => {
+            // Hide loader
+            loader.style.display = "none";
+
+            try {
+                // 3. Perform calculation
+                const finalAnswer = eval(input);
+                
+                if (input.trim() === "") {
+                    resultArea.innerText = "Empty!";
+                } else {
+                    resultArea.innerText = finalAnswer;
+                }
+            } catch (e) {
+                resultArea.innerText = "Error";
             }
-        } catch (error) {
-            // If the user types something that isn't math (like "hello")
-            display.innerText = "Invalid Math";
-        }
+        }, 1500); 
     }
 </script>
 
