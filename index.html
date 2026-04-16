@@ -1,50 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Burp Suite Lab - PHP</title>
+    <meta charset="UTF-8">
+    <title>Burp Suite Figure Lab</title>
     <style>
-        body { font-family: 'Courier New', monospace; background: #1a1a1a; color: #00ff00; text-align: center; padding: 50px; }
-        .container { border: 2px solid #00ff00; display: inline-block; padding: 30px; border-radius: 10px; }
-        input { padding: 10px; background: #000; border: 1px solid #00ff00; color: #00ff00; margin-bottom: 10px; width: 250px; }
-        button { padding: 10px 20px; background: #00ff00; color: #000; border: none; cursor: pointer; font-weight: bold; }
-        #loader { display: none; margin-top: 20px; color: #ff00ff; }
-        #result { margin-top: 20px; font-size: 24px; color: #fff; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #121212; color: #e0e0e0; display: flex; justify-content: center; padding-top: 100px; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); width: 350px; text-align: center; border: 1px solid #333; }
+        input { width: 100%; padding: 12px; margin: 20px 0; border-radius: 6px; border: 1px solid #444; background: #2d2d2d; color: #fff; box-sizing: border-box; font-size: 18px; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        
+        /* The Loading Spinner */
+        #loader { display: none; margin: 20px auto; border: 4px solid #333; border-top: 4px solid #007bff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        #result { margin-top: 20px; font-size: 22px; color: #00ff88; min-height: 30px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>SYSTEM CALCULATOR</h2>
-    <input type="text" id="calcInput" placeholder="Enter calculation (e.g. 23+23)">
-    <br>
-    <button onclick="submitData()">PROCESS REQUEST</button>
+<div class="card">
+    <h3>Enter Figure</h3>
+    <input type="number" id="figureInput" placeholder="Enter a number (e.g. 100)">
+    <button onclick="processFigure()">SUBMIT FIGURE</button>
     
-    <div id="loader">POLLING SERVER...</div>
+    <div id="loader"></div>
     <div id="result"></div>
 </div>
 
 <script>
-    function submitData() {
-        const val = document.getElementById('calcInput').value;
+    function processFigure() {
+        const figure = document.getElementById('figureInput').value;
         const loader = document.getElementById('loader');
         const resultDiv = document.getElementById('result');
 
+        // Show loading and clear old results
         loader.style.display = "block";
         resultDiv.innerText = "";
 
-        // Send data to the PHP backend
+        // Send to PHP via POST
         fetch('process.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'query=' + encodeURIComponent(val)
+            body: 'amount=' + encodeURIComponent(figure)
         })
         .then(response => response.text())
         .then(data => {
-            // Artificial delay so you can see the "Loading" state in the UI
+            // Artificial delay to simulate "server thinking"
             setTimeout(() => {
                 loader.style.display = "none";
-                resultDiv.innerText = "Response: " + data;
-            }, 1000);
+                resultDiv.innerText = data;
+            }, 1200);
         });
     }
 </script>
