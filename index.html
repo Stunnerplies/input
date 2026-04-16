@@ -1,55 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Vulnerable Calc Lab</title>
+    <title>Burp Suite Lab - PHP</title>
     <style>
-        body { font-family: monospace; background: #111; color: #0f0; display: flex; justify-content: center; padding-top: 50px; }
-        .box { border: 1px solid #0f0; padding: 20px; width: 400px; box-shadow: 0 0 15px #0f0; }
-        input { background: #000; border: 1px solid #0f0; color: #0f0; width: 100%; padding: 10px; box-sizing: border-box; margin-bottom: 10px; }
-        button { background: #0f0; color: #000; border: none; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; }
-        #status { margin-top: 15px; color: #ff0; }
-        #result { margin-top: 10px; font-size: 1.5rem; }
+        body { font-family: 'Courier New', monospace; background: #1a1a1a; color: #00ff00; text-align: center; padding: 50px; }
+        .container { border: 2px solid #00ff00; display: inline-block; padding: 30px; border-radius: 10px; }
+        input { padding: 10px; background: #000; border: 1px solid #00ff00; color: #00ff00; margin-bottom: 10px; width: 250px; }
+        button { padding: 10px 20px; background: #00ff00; color: #000; border: none; cursor: pointer; font-weight: bold; }
+        #loader { display: none; margin-top: 20px; color: #ff00ff; }
+        #result { margin-top: 20px; font-size: 24px; color: #fff; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>TRANSACTION PROCESSOR</h2>
-    <input type="text" id="dataInput" placeholder="Enter payload...">
-    <button onclick="sendToServer()">SUBMIT TO SERVER</button>
+<div class="container">
+    <h2>SYSTEM CALCULATOR</h2>
+    <input type="text" id="calcInput" placeholder="Enter calculation (e.g. 23+23)">
+    <br>
+    <button onclick="submitData()">PROCESS REQUEST</button>
     
-    <div id="status"></div>
+    <div id="loader">POLLING SERVER...</div>
     <div id="result"></div>
 </div>
 
 <script>
-    function sendToServer() {
-        const val = document.getElementById('dataInput').value;
-        const status = document.getElementById('status');
+    function submitData() {
+        const val = document.getElementById('calcInput').value;
+        const loader = document.getElementById('loader');
         const resultDiv = document.getElementById('result');
 
-        status.innerText = "SENDING TO SERVER...";
+        loader.style.display = "block";
         resultDiv.innerText = "";
 
-        // We use fetch to a fake endpoint so Burp Suite can intercept the request
-        fetch('/api/calculate', {
+        // Send data to the PHP backend
+        fetch('process.php', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ expression: val })
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'query=' + encodeURIComponent(val)
         })
-        .then(response => response.json())
-        .catch(() => {
-            // Because there is no real backend, this will technically "fail"
-            // But we simulate the "loading" and "result" anyway for the lab
+        .then(response => response.text())
+        .then(data => {
+            // Artificial delay so you can see the "Loading" state in the UI
             setTimeout(() => {
-                status.innerText = "SERVER RESPONDED:";
-                try {
-                    resultDiv.innerText = eval(val); // The "vulnerability"
-                } catch(e) {
-                    resultDiv.innerText = "EXECUTION ERROR";
-                }
-            }, 2000);
+                loader.style.display = "none";
+                resultDiv.innerText = "Response: " + data;
+            }, 1000);
         });
     }
 </script>
