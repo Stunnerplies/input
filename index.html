@@ -2,58 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Burp Suite - HTML Figure Lab</title>
+    <title>Burp Response Lab</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; display: flex; justify-content: center; padding-top: 80px; }
-        .card { background: #16213e; padding: 30px; border-radius: 15px; width: 350px; text-align: center; border: 1px solid #0f3460; }
-        input { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: none; font-size: 18px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #e94560; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
-        
-        /* The Loading Spinner */
-        #loader { display: none; margin: 20px auto; border: 4px solid #0f3460; border-top: 4px solid #e94560; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        #result { margin-top: 20px; font-size: 24px; color: #4ecca3; font-weight: bold; }
+        body { font-family: sans-serif; background: #121212; color: white; text-align: center; padding-top: 50px; }
+        .box { border: 2px solid #333; display: inline-block; padding: 20px; border-radius: 10px; }
+        input { padding: 10px; font-size: 18px; margin-bottom: 10px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        #loader { display: none; color: yellow; margin: 10px; }
+        #result { font-size: 30px; color: #00ff00; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Input Figure</h2>
-    <input type="number" id="figureInput" placeholder="Enter amount...">
-    <button onclick="submitToBurp()">SUBMIT</button>
-    
-    <div id="loader"></div>
+<div class="box">
+    <h2>Figure Lab</h2>
+    <input type="number" id="figure" value="500">
+    <br>
+    <button onclick="runLab()">Submit</button>
+    <div id="loader">Processing in Burp...</div>
     <div id="result"></div>
 </div>
 
 <script>
-    function submitToBurp() {
-        const figure = document.getElementById('figureInput').value;
-        const loader = document.getElementById('loader');
+    async function runLab() {
+        const inputVal = document.getElementById('figure').value;
         const resultDiv = document.getElementById('result');
+        const loader = document.getElementById('loader');
 
-        // 1. Show the "Loading" state
-        loader.style.display = "block";
         resultDiv.innerText = "";
+        loader.style.display = "block";
 
-        // 2. We use 'fetch' to send a request that Burp Suite can catch.
-        // Even though 'fake-endpoint' isn't real, Burp will intercept the POST.
-        fetch('/submit-figure', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: figure })
-        })
-        .finally(() => {
-            // 3. We use a delay so you have time to play with the request in Burp
-            setTimeout(() => {
-                loader.style.display = "none";
-                
-                // For this pure HTML version, we display the figure you entered.
-                // If you change the figure in Burp, you'll see the change here!
-                resultDiv.innerText = "Processed: " + figure;
-            }, 2000);
-        });
+        try {
+            // We send the data to a real "echo" service. 
+            // This service simply sends back whatever you send it.
+            const response = await fetch('https://httpbin.org/post', {
+                method: 'POST',
+                body: new URLSearchParams({ 'amount': inputVal })
+            });
+            
+            const data = await response.json();
+            
+            // This is the key: We show the "amount" that comes BACK from the server
+            // If you change it in Burp to 700, the server receives 700 and sends back 700.
+            resultDiv.innerText = "Server Returned: " + data.form.amount;
+        } catch (e) {
+            resultDiv.innerText = "Error: Use Burp to Forward";
+        } finally {
+            loader.style.display = "none";
+        }
     }
 </script>
 
